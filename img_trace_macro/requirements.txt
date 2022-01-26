@@ -1,0 +1,5 @@
+image == 1.5.33
+Pillow == 8.4.0
+PyAutoGUI == 0.9.53
+opencv-python == 4.5.5
+psutil == 5.9.0

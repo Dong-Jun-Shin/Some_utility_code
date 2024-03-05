@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    "preserveConstEnums": true,
+    "strictNullChecks": false,
+    "useUnknownInCatchVariables": false,
+    "sourceMap": true,
+    "allowJs": true,
+    "declaration": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "target": "es2017",
+    "outDir": "build",
+    "moduleResolution": "node",
+    "lib": [
+      "es2020",
+      "dom"
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "@route/*": [
+        "./src/routes/*"
+      ],
+      "@service/*": [
+        "./src/service/*"
+      ]
+    },
+    "plugins": [
+      {
+        "transform": "typescript-transform-paths"
+      },
+      {
+        "name": "typescript-plugin-css-modules"
+      }
+    ],
+    "jsx": "react-jsx"
+  },
+  "include": [
+    "src/**/*",
+    "package.json",
+    "__test__"
+  ]
+}

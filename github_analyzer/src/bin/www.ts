@@ -14,8 +14,8 @@ const debug = debugModule("express:server");
  * Normalize a port into a number, string, or false.
  */
 
-const normalizePort = (val) => {
-  const port = parseInt(val, 10);
+const normalizePort = (val: string | number): number | string | boolean => {
+  const port = parseInt(val.toString(), 10);
 
   if (Number.isNaN(port)) {
     // named pipe
@@ -47,7 +47,7 @@ const server = http.createServer(app);
  * Event listener for HTTP server "error" event.
  */
 
-const onError = (error) => {
+const onError = (error: NodeJS.ErrnoException): void => {
   if (error.syscall !== "listen") {
     throw error;
   }
@@ -73,9 +73,9 @@ const onError = (error) => {
  * Event listener for HTTP server "listening" event.
  */
 
-const onListening = () => {
+const onListening = (): void => {
   const addr = server.address();
-  const bind = typeof addr === "string" ? `pipe ${addr}` : `port ${addr.port}`;
+  const bind = typeof addr === "string" ? `pipe ${addr}` : `port ${addr?.port}`;
 
   console.log(`Listening on ${bind}`);
 };

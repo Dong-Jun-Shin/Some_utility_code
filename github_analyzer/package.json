@@ -1,0 +1,30 @@
+{
+  "name": "github-analyzer",
+  "version": "0.0.0",
+  "description": "analyze github",
+  "private": true,
+  "scripts": {
+    "build": "NODE_ENV=production babel src --out-dir dist --copy-files",
+    "start": "node dist/bin/www.js",
+    "start:dev": "nodemon --exec babel-node src/bin/www.js"
+  },
+  "author": "Dong-jun-Shin",
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "dayjs": "^1.11.10",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1",
+    "pug": "2.0.0-beta11"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.9",
+    "@babel/core": "^7.24.0",
+    "@babel/node": "^7.23.9",
+    "@babel/plugin-transform-runtime": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
+    "babel-plugin-transform-remove-console": "^6.9.4",
+    "nodemon": "^3.1.0"
+  }
+}

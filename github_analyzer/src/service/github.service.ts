@@ -95,23 +95,48 @@ class GitHubService {
     pullRequests.forEach((pr: PullRequest) => {
       const endDate = pr.merged_at || pr.closed_at;
 
-      if (pr.state === "closed" && endDate) {
-        reviewTimes.push(this.calculateReviewTime(pr.created_at, endDate, "seconds"));
-      }
+      if (pr.state !== "closed" || !endDate) return;
+
+      reviewTimes.push(this.calculateReviewTime(pr.created_at, endDate, "seconds"));
     });
 
     return reviewTimes;
   }
 
-  getReviewTimeStatisticsByPr(pullRequests: PullRequest[]): { total: string; average: string; min: string; max: string } {
+  getReviewRange(pullRequests: PullRequest[]): { start: string; end: string } {
+    let minDate = dayjs();
+    let maxDate = dayjs(0); // 초기값을 가장 늦은 날짜로 설정
+
+    pullRequests.forEach((pr: PullRequest) => {
+      const createdAt = dayjs(pr.created_at);
+      const updatedAt = dayjs(pr.merged_at || pr.closed_at);
+
+      if (createdAt.isBefore(minDate)) {
+        minDate = createdAt;
+      }
+      if (updatedAt.isAfter(maxDate)) {
+        maxDate = updatedAt;
+      }
+    });
+
+    return { start: minDate.format("YYYY/MM/DD"), end: maxDate.format("YYYY/MM/DD") };
+  }
+
+  getReviewTimeStatisticsByPr(pullRequests: PullRequest[]): {
+    reviewRange: string;
+    average: string;
+    min: string;
+    max: string;
+  } {
     const reviewTimes = this.getReviewTimes(pullRequests);
+    const reviewRange = this.getReviewRange(pullRequests);
     const totalTime = reviewTimes.reduce((acc, cur) => acc + cur, 0);
     const averageTime = reviewTimes.length > 0 ? totalTime / reviewTimes.length : 0;
     const minTime = Math.min(...reviewTimes);
     const maxTime = Math.max(...reviewTimes);
 
     return {
-      total: formatToTime(totalTime),
+      reviewRange: `${reviewRange.start} ~ ${reviewRange.end}`,
       average: formatToTime(averageTime),
       min: formatToTime(minTime),
       max: formatToTime(maxTime),

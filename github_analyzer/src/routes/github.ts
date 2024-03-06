@@ -6,12 +6,12 @@ const router = express.Router();
 // const githubService = new GitHubPRAnalyzer("Dong-Jun-Shin", "Noti_Secretary");
 const githubService = new GitHubPRAnalyzer("jnpmedi", "maven-docs");
 
-router.get("/pr/analyze", async (req, res, next) => {
+router.get("/pr/review/analyze", async (req, res, next) => {
   try {
     const pullRequests = await githubService.fetchPullRequests();
     const reviewTimeStatistics = githubService.getReviewTimeStatisticsByPr(pullRequests);
-    const message = `총 PR 개수: ${pullRequests.length}개<br/>
-      총 PR 리뷰 완료 시간: ${reviewTimeStatistics.total}<br/>
+    const message = `전체 PR 리뷰 기간: ${reviewTimeStatistics.reviewRange}<br/>
+      총 PR 개수: ${pullRequests.length}개<br/>
       평균 PR 리뷰 완료 시간: ${reviewTimeStatistics.average}<br/>
       최소 PR 리뷰 완료 시간: ${reviewTimeStatistics.min}<br/>
       최대 PR 리뷰 완료 시간: ${reviewTimeStatistics.max}<br/>

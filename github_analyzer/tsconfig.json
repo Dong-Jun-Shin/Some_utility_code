@@ -23,10 +23,13 @@
     "baseUrl": "./",
     "paths": {
       "@route/*": [
-        "./src/routes/*"
+        "src/routes/*"
       ],
       "@service/*": [
-        "./src/service/*"
+        "src/service/*"
+      ],
+      "@lib/*": [
+        "src/lib/*"
       ]
     },
     "plugins": [
@@ -43,5 +46,10 @@
     "src/**/*",
     "package.json",
     "__test__"
-  ]
+  ],
+  "ts-node": {
+    "require": [
+      "tsconfig-paths/register"
+    ]
+  }
 }

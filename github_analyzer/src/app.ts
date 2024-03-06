@@ -3,9 +3,12 @@ import express from "express";
 import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
-
+import dotenv from "dotenv";
 import indexRouter from "./routes/index";
 import usersRouter from "./routes/users";
+import githubRouter from "./routes/github";
+
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const app = express();
 
@@ -21,6 +24,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
+app.use("/github", githubRouter);
 
 app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
   next(createError(404));

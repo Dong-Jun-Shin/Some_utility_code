@@ -14,10 +14,13 @@
   },
   "author": "Dong-jun-Shin",
   "dependencies": {
+    "@octokit/rest": "^20.0.2",
     "axios": "^1.6.7",
     "cookie-parser": "~1.4.4",
     "dayjs": "^1.11.10",
     "debug": "~2.6.9",
+    "dotenv": "^16.4.5",
+    "duration": "^0.2.2",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
@@ -37,6 +40,7 @@
     "babel-plugin-transform-remove-console": "^6.9.4",
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.3"
   }
 }

@@ -77,6 +77,10 @@ const onListening = (): void => {
   const addr = server.address();
   const bind = typeof addr === "string" ? `pipe ${addr}` : `port ${addr?.port}`;
 
+  console.log(`STAGE: ${process.env.STAGE}`);
+  console.log(`HOST: ${process.env.HOST}`);
+  console.log(`PORT: ${process.env.PORT}`);
+  console.log(`GITHUB_ACCESS_TOKEN: ${process.env.GITHUB_ACCESS_TOKEN}`);
   console.log(`Listening on ${bind}`);
 };
 

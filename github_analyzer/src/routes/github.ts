@@ -3,10 +3,10 @@ import GitHubPRAnalyzer from "../service/github.service";
 
 const router = express.Router();
 // const githubService = new GitHubPRAnalyzer("Dong-Jun-Shin", "News_summary_crawler");
-// const githubService = new GitHubPRAnalyzer("Dong-Jun-Shin", "Noti_Secretary");
-const githubService = new GitHubPRAnalyzer("jnpmedi", "maven-docs");
+const githubService = new GitHubPRAnalyzer("Dong-Jun-Shin", "Noti_Secretary");
+// const githubService = new GitHubPRAnalyzer("jnpmedi", "maven-docs");
 
-router.get("/pr/review/analyze", async (req, res, next) => {
+router.get("/prs/analyze", async (req, res, next) => {
   try {
     const pullRequests = await githubService.fetchPullRequests();
     const reviewTimeStatistics = githubService.getReviewTimeStatisticsByPr(pullRequests);
@@ -21,6 +21,24 @@ router.get("/pr/review/analyze", async (req, res, next) => {
     `;
 
     res.send(message);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+router.get("/prs/notification", async (req, res, next) => {
+  try {
+    // Open 상태 + MergeReady가 아닌 PR 조회
+    const pullRequests = await githubService.fetchPullRequests();
+
+    // label 필터해서 변경
+
+
+
+    // 알림 발송
+
+    // res.send(message);
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");

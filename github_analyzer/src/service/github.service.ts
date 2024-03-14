@@ -41,17 +41,20 @@ class GitHubService {
     this.octokit = new Octokit();
   }
 
-  async fetchPullRequests(): Promise<PullRequest[]> {
+  //OPTIONS Param으로 개선
+  async fetchPullRequests(options: { state: "open" | "closed";  }): Promise<PullRequest[]> {
     const perPage = 100;
     let page = 1;
     let allPullRequests: PullRequest[] = [];
 
+    // while (page <= 1) {
     while (true) {
       try {
         const response = await this.octokit.request("GET /repos/{owner}/{repo}/pulls", {
           owner: this.owner,
           repo: this.repo,
-          state: "closed",
+          state: options.state,
+
           per_page: perPage,
           page,
           headers: {

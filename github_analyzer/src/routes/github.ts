@@ -1,5 +1,5 @@
 import express from "express";
-import GitHubPRAnalyzer from "../service/github.service";
+import GitHubPRAnalyzer, { PullRequestLabelName, PullRequestState } from "../service/github.service";
 
 const router = express.Router();
 // const githubService = new GitHubPRAnalyzer("Dong-Jun-Shin", "News_summary_crawler");
@@ -7,8 +7,10 @@ const githubService = new GitHubPRAnalyzer("Dong-Jun-Shin", "Noti_Secretary");
 // const githubService = new GitHubPRAnalyzer("jnpmedi", "maven-docs");
 
 router.get("/prs/analyze", async (req, res, next) => {
+  const ticketPattern = /\[(DOCS|docs)-[0-9]{1,}\]/;
+
   try {
-    const pullRequests = await githubService.fetchPullRequests();
+    const pullRequests = await githubService.fetchPullRequests({ title: ticketPattern, state: PullRequestState.CLOSED });
     const reviewTimeStatistics = githubService.getReviewTimeStatisticsByPr(pullRequests);
     const message = `전체 PR 리뷰 기간: ${reviewTimeStatistics.reviewRange}<br/>
       총 PR 개수: ${pullRequests.length}개<br/>
@@ -29,15 +31,21 @@ router.get("/prs/analyze", async (req, res, next) => {
 
 router.get("/prs/notification", async (req, res, next) => {
   try {
+    // githubService에서 label 조회
+    await githubService.setRepoLabels();
+
     // Open 상태 + MergeReady가 아닌 PR 조회
-    const pullRequests = await githubService.fetchPullRequests();
+    const pullRequests = await githubService.fetchPullRequests({
+      state: PullRequestState.OPEN,
+      labelNames: Object.values(PullRequestLabelName).filter((label) => label !== PullRequestLabelName.MERGE_READY),
+    });
 
     // label 필터해서 변경
-
-
+    await githubService.updateLabels(pullRequests);
 
     // 알림 발송
 
+    res.send("Done");
     // res.send(message);
   } catch (error) {
     console.error(error.message);

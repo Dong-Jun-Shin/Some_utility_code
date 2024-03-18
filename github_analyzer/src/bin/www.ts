@@ -80,7 +80,7 @@ const onListening = (): void => {
   console.log(`STAGE: ${process.env.STAGE}`);
   console.log(`HOST: ${process.env.HOST}`);
   console.log(`PORT: ${process.env.PORT}`);
-  console.log(`GITHUB_ACCESS_TOKEN: ${process.env.GITHUB_ACCESS_TOKEN}`);
+  console.log(`GITHUB_TOKEN: ${process.env.GITHUB_TOKEN}`);
   console.log(`Listening on ${bind}`);
 };
 

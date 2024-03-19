@@ -62,7 +62,7 @@ interface PullRequest {
   draft: boolean;
   user: User;
 }
-
+//
 class GitHubService {
   owner: string;
   repo: string;
@@ -230,43 +230,30 @@ class GitHubService {
     await Promise.all(
       pullRequests.map(async (pr) => {
         const dDayLabelName = this.getDdayLabelName(pr);
-        console.log("🚀 ~ pullRequests.map ~ dDayLabelName:", dDayLabelName);
         const mergeReadyLabelName = this.getMergeReadyLabelName(pr);
-        console.log("🚀 ~ pullRequests.map ~ mergeReadyLabelName:", mergeReadyLabelName);
         const deployTypeLabelName = this.getDeployTypeLabelName(pr);
-        console.log("🚀 ~ pullRequests.map ~ deployTypeLabelName:", deployTypeLabelName);
         const qcLabelName = this.getQCLabelName(pr);
-        console.log("🚀 ~ pullRequests.map ~ qcLabelName:", qcLabelName);
         let isAdded = false;
 
         if (dDayLabelName || !mergeReadyLabelName) {
-          // D-day 처리
           if (dDayLabelName) {
             const dDay = this.getDday(dDayLabelName);
-            console.log("🚀 ~ pullRequests.map ~ dDay:", dDay);
 
             if (dDay > 0 && dDay <= 3) {
               const newDdayLabel = `D-${dDay - 1}`;
 
-              // 0 ~ 3일 사이일 때, 하루 줄어든 라벨로 변경 처리
               await this.addLabelsToPr(pr, [newDdayLabel as PullRequestLabelName]);
               isAdded = true;
             } else if (dDay <= 0) {
-              // 0일 미만인 경우, OverDay 라벨로 변경 처리
               await this.addLabelsToPr(pr, [PullRequestLabelName.OVER_DAY]);
               isAdded = true;
             }
-
-            // 3일 초과된 경우, 아무 처리도 하지 않고 넘김 처리
           }
 
-          // MergeReady 처리
           if (!mergeReadyLabelName) {
             const isApproved = await this.isApproved(pr);
-            console.log("🚀 ~ pullRequests.map ~ isApproved:", isApproved);
 
             if (isApproved) {
-              // Approve를 받았다면 D-n 라벨을 제거하고 MergeReady 추가
               await this.addLabelsToPr(pr, [PullRequestLabelName.MERGE_READY]);
               isAdded = true;
             }
@@ -277,17 +264,12 @@ class GitHubService {
           }
         }
 
-        // 배포 유형, QC 여부 라벨 체크
         if (!deployTypeLabelName) {
           await this.addCommentToPr(pr, "배포 유형 라벨이 없습니다. 추가해주세요.");
         }
 
-        // 없는 경우, 추가해달라는 코멘트 추가
         if (!qcLabelName) {
-          // PR의 코멘트를 확인
           const comments = await this.getComments(pr);
-
-          // "QC 라벨이 없습니다. 확인해주세요."라는 코멘트가 있는지 확인하고 없으면 추가
 
           if (!comments.some((comment) => comment.body.includes("QC 라벨이 없습니다. 확인해주세요."))) {
             await this.addCommentToPr(pr, "QC 라벨이 없습니다. 확인해주세요.");
@@ -332,7 +314,6 @@ class GitHubService {
   }
 
   async addLabelsToPr(pr: PullRequest, labelNames: PullRequestLabelName[]) {
-    console.log("🚀 ~ addLabelsToPr ~ labelNames:", labelNames);
     try {
       const response = await this.octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/labels", {
         owner: this.owner,
@@ -361,7 +342,6 @@ class GitHubService {
   }
 
   async removeLabelsFromPr(pr: PullRequest, labelNames: PullRequestLabelName[]) {
-    console.log("🚀 ~ removeLabelsFromPr ~ labelNames:", labelNames);
     try {
       await Promise.all(
         labelNames.map(async (labelName) => {
@@ -413,14 +393,12 @@ class GitHubService {
   }
 
   async addCommentToPr(pr: PullRequest, body: string) {
-    console.log("🚀 ~ addCommentToPr ~ body:", body);
     try {
       const response = await this.octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
         owner: this.owner,
         repo: this.repo,
         issue_number: pr.number,
         body,
-        author: "github-bot", // Set the author as 'github-bot'
         headers: {
           "X-GitHub-Api-Version": "2022-11-28",
           authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
@@ -457,6 +435,88 @@ class GitHubService {
     } catch (error) {
       throw new Error(`Error fetching reviews: ${error.message}`);
     }
+  }
+
+  /**
+   * [🔍Review]
+   * **Over Day**
+   * - <${PR_1 URL} | ${replaceStringToEscapeString(PR_1 title)}>
+   * - <${PR_2 URL} | ${replaceStringToEscapeString(PR_2 title)}>
+   * - <${PR_3 URL} | ${replaceStringToEscapeString(PR_3 title)}>
+   * - ...
+   * **D-0**
+   * - <${PR_1 URL} | ${replaceStringToEscapeString(PR_1 title)}>
+   * - <${PR_2 URL} | ${replaceStringToEscapeString(PR_2 title)}>
+   * - <${PR_3 URL} | ${replaceStringToEscapeString(PR_3 title)}>
+   * - ...
+   * **D-1**
+   * - <${PR_1 URL} | ${replaceStringToEscapeString(PR_1 title)}>
+   * - <${PR_2 URL} | ${replaceStringToEscapeString(PR_2 title)}>
+   * - <${PR_3 URL} | ${replaceStringToEscapeString(PR_3 title)}>
+   * - ...
+   * **D-2**
+   * - <${PR_1 URL} | ${replaceStringToEscapeString(PR_1 title)}>
+   * - <${PR_2 URL} | ${replaceStringToEscapeString(PR_2 title)}>
+   * - <${PR_3 URL} | ${replaceStringToEscapeString(PR_3 title)}>
+   * - ...
+   * **D-3**
+   * - <${PR_1 URL} | ${replaceStringToEscapeString(PR_1 title)}>
+   * - <${PR_2 URL} | ${replaceStringToEscapeString(PR_2 title)}>
+   * - <${PR_3 URL} | ${replaceStringToEscapeString(PR_3 title)}>
+   * - ...
+   *
+   * [🧱Block]
+   * - <${PR_1 URL} | ${replaceStringToEscapeString(PR_1 title)}>
+   * - <${PR_2 URL} | ${replaceStringToEscapeString(PR_2 title)}>
+   * - <${PR_3 URL} | ${replaceStringToEscapeString(PR_3 title)}>
+   * - ...
+   *
+   * [🚀Merge Ready]
+   * - <${PR_1 URL} | ${replaceStringToEscapeString(PR_1 title)}>
+   * - <${PR_2 URL} | ${replaceStringToEscapeString(PR_2 title)}>
+   * - <${PR_3 URL} | ${replaceStringToEscapeString(PR_3 title)}>
+   * - ...
+   *
+   */
+  // Test 해보기
+  generateNotificationMessage(pullRequests: PullRequest[]): string {
+    const overDayPRs = pullRequests.filter((pr) => pr.labels.some((label) => label.name === PullRequestLabelName.OVER_DAY));
+    const dDayPRs = pullRequests.filter((pr) => pr.labels.some((label) => label.name.includes("D-")));
+    const blockPRs = pullRequests.filter((pr) => pr.labels.some((label) => label.name === PullRequestLabelName.BLOCKING));
+    const mergeReadyPRs = pullRequests.filter((pr) => pr.labels.some((label) => label.name === PullRequestLabelName.MERGE_READY));
+
+    let message = "";
+
+    // Review
+    if (overDayPRs.length > 0) {
+      message += `**Over Day**\n${overDayPRs.map((pr) => `- <${pr.html_url} | ${pr.title}>`).join("\n")}\n\n`;
+    }
+
+    if (dDayPRs.length > 0) {
+      // d-0, d-1, d-2, d-3 순으로 message를 생성합니다.
+      for (let i = 0; i < 4; i++) {
+        const dDayPRs = pullRequests.filter((pr) => pr.labels.some((label) => label.name === `D-${i}`));
+        if (dDayPRs.length > 0) {
+          message += `**D-${i}**\n${dDayPRs.map((pr) => `- <${pr.html_url} | ${pr.title}>`).join("\n")}\n\n`;
+        }
+      }
+    }
+
+    if (message.length > 0) {
+      message = `[🔍Review]\n${message}`;
+    }
+
+    // Block
+    if (blockPRs.length > 0) {
+      message += `[🧱Block]\n${blockPRs.map((pr) => `- <${pr.html_url} | ${pr.title}>`).join("\n")}\n\n`;
+    }
+
+    // Merge Ready
+    if (mergeReadyPRs.length > 0) {
+      message += `[🚀Merge Ready]\n${mergeReadyPRs.map((pr) => `- <${pr.html_url} | ${pr.title}>`).join("\n")}\n\n`;
+    }
+
+    return message;
   }
 }
 

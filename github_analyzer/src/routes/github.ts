@@ -1,10 +1,13 @@
 import express from "express";
 import GitHubPRAnalyzer, { PullRequestLabelName, PullRequestState } from "../service/github.service";
+import Logger, { stringifyObject } from "@lib/function/Logger";
+import dayjs from "dayjs";
 
 const router = express.Router();
 // const githubService = new GitHubPRAnalyzer("Dong-Jun-Shin", "News_summary_crawler");
 const githubService = new GitHubPRAnalyzer("Dong-Jun-Shin", "Noti_Secretary");
 // const githubService = new GitHubPRAnalyzer("jnpmedi", "maven-docs");
+const loggerService = new Logger(process.env.NOTI_SLACK_URL);
 
 router.get("/prs/analyze", async (req, res, next) => {
   const ticketPattern = /\[(DOCS|docs)-[0-9]{1,}\]/;
@@ -44,6 +47,17 @@ router.get("/prs/notification", async (req, res, next) => {
     await githubService.updateLabels(pullRequests);
 
     // 알림 발송
+    let message = "";
+    const startMessage = `*[INFO]* ✨오늘의 PR 리뷰✨ \n${dayjs().format("YYYY-MM-DD HH:mm:ss Z")}`;
+
+    message += `${startMessage}\n`;
+    message += `${githubService.generateNotificationMessage(pullRequests)}\n`;
+
+    console.log(stringifyObject(message));
+    console.log(stringifyObject(message, 0));
+    console.log("🚀 ~ router.get ~ message:", message);
+
+    // await loggerService.noti(message);
 
     res.send("Done");
     // res.send(message);

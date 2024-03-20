@@ -81,6 +81,7 @@ const onListening = (): void => {
   console.log(`HOST: ${process.env.HOST}`);
   console.log(`PORT: ${process.env.PORT}`);
   console.log(`GITHUB_TOKEN: ${process.env.GITHUB_TOKEN}`);
+  console.log(`NOTI_SLACK_URL: ${process.env.NOTI_SLACK_URL}`);
   console.log(`Listening on ${bind}`);
 };
 
